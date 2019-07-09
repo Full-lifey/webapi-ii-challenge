@@ -39,7 +39,6 @@ router.get('/:id', async (req, res) => {
 });
 
 router.get('/:id/comments', async (req, res) => {
-  console.log(`hit /:id/comments`);
   const { id } = req.params;
 
   try {
@@ -57,5 +56,27 @@ router.get('/:id/comments', async (req, res) => {
       .json({ error: 'The comments information could not be retrieved.' });
   }
 });
+
+router.post('/', async (req, res) => {
+  try {
+    if (!isValidPost(req.body)) {
+      res.status(400).json({
+        errorMessage: 'Please provide title and contents for the post.'
+      });
+    } else {
+      const post = await Posts.insert(req.body);
+      res.status(201).json({ id: post.id, ...req.body });
+    }
+  } catch (err) {
+    res.status(500).json({
+      error: 'There was an error while saving the post to the database'
+    });
+  }
+});
+
+function isValidPost(post) {
+  const { title, contents } = post;
+  return title && contents;
+}
 
 module.exports = router; // Exports router to add to index.js
