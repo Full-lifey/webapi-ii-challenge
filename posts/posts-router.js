@@ -74,6 +74,24 @@ router.post('/', async (req, res) => {
   }
 });
 
+router.post('/:id/comments', async (req, res) => {
+  const { id } = req.params;
+  try {
+    if (!req.body.text) {
+      res
+        .status(400)
+        .json({ errorMessage: 'Please provide text for the comment.' });
+    } else {
+      const comment = await Posts.insertComment({ post_id: id, ...req.body });
+      res.status(201).json({ post_id: comment.id, ...req.body });
+    }
+  } catch (err) {
+    res.status(500).json({
+      error: 'There was an error while saving the comment to the database'
+    });
+  }
+});
+
 function isValidPost(post) {
   const { title, contents } = post;
   return title && contents;
